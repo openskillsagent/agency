@@ -1,0 +1,58 @@
+[
+  {
+    "owner": "anthropics",
+    "repo": "skills",
+    "path": "skills"
+  },
+  {
+    "owner": "vercel-labs",
+    "repo": "agent-skills",
+    "path": "skills"
+  },
+  {
+    "owner": "bmad-code-org",
+    "repo": "BMAD-METHOD",
+    "path": ".claude/skills"
+  },
+  {
+    "owner": "martinellich",
+    "repo": "aiup-marketplace",
+    "path": "aiup-core/skills"
+  },
+  {
+    "owner": "openclaw",
+    "repo": "openclaw",
+    "path": "skills"
+  },
+  {
+    "owner": "microsoft",
+    "repo": "GitHub-Copilot-for-Azure",
+    "path": "plugin/skills"
+  },
+  {
+    "owner": "microsoft",
+    "repo": "skills",
+    "path": ".github/skills"
+  },
+  {
+    "owner": "inference-sh",
+    "repo": "skills",
+    "path": "skills"
+  },
+  {
+    "owner": "github",
+    "repo": "awesome-copilot",
+    "path": "skills"
+  },
+  {
+    "owner": "wshobson",
+    "repo": "agents",
+    "path": "plugins",
+    "comment": "Special case: */skills"
+  },
+  {
+    "owner": "angelo-v",
+    "repo": "opencode-playground",
+    "path": ".opencode/skills"
+  }
+]

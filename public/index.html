@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>openskills agency - a place for trusted skills.</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo-section">
+                <img src="assets/doghub.png" alt="OpenSkills Agency Logo" class="logo">
+                <div class="title-section">
+                    <h1>openskills agency</h1>
+                    <p class="subtitle">fetch, assemble and deploy the skills you need from the sources you trust</p>
+                    <p class="tagline">select from a list curated by humans, organizations and companies
+                    <br/>group the skills by category and give your agents and subagents only the skills needed for their current task
+                    
+                </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="stats-bar">
+            <span id="total-skills">Loading skills...</span>
+            <span id="filtered-count"></span>
+            <button id="download-btn" class="download-btn" disabled>
+                Download Selected (<span id="selected-count">0</span>)
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table id="skills-table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input type="checkbox" id="select-all" title="Select/Deselect All">
+                        </th>
+                        <th data-column="creator">
+                            <div class="th-content">
+                                <span class="th-label">Skill Creator</span>
+                                <span class="sort-indicator"></span>
+                            </div>
+                            <select class="filter-select" data-column="creator">
+                                <option value="">All</option>
+                            </select>
+                        </th>
+                        <th data-column="category">
+                            <div class="th-content">
+                                <span class="th-label">Category</span>
+                                <span class="sort-indicator"></span>
+                            </div>
+                            <select class="filter-select" data-column="category">
+                                <option value="">All</option>
+                            </select>
+                        </th>
+                        <th data-column="summary">
+                            <div class="th-content">
+                                <span class="th-label">Summary</span>
+                                <span class="sort-indicator"></span>
+                            </div>
+                        </th>
+                        <th data-column="url">
+                            <div class="th-content">
+                                <span class="th-label">URL</span>
+                                <span class="sort-indicator"></span>
+                            </div>
+                        </th>
+                        <th data-column="license">
+                            <div class="th-content">
+                                <span class="th-label">License</span>
+                                <span class="sort-indicator"></span>
+                            </div>
+                            <select class="filter-select" data-column="license">
+                                <option value="">All</option>
+                            </select>
+                        </th>
+                        <th data-column="trust">
+                            <div class="th-content">
+                                <span class="th-label">Trust (Github repo stars)</span>
+                                <span class="sort-indicator"></span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="skills-tbody">
+                    <tr>
+                        <td colspan="6" class="loading">Loading skills data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 OpenSkills Agency | Open Source Skills Marketplace | OpenSkills Agency is a free and open source project, licensed under the MIT License.</p>
+            <div class="footer-links">
+                <a href="https://github.com/openskillsagent" target="_blank" rel="noopener noreferrer" class="github-link" title="Visit us on GitHub">
+                    <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
