@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>openskills agency - a place for trusted skills.</title>
+    <title>openskills agency - trusted skills.</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,12 +12,15 @@
             <div class="logo-section">
                 <img src="assets/doghub.png" alt="OpenSkills Agency Logo" class="logo">
                 <div class="title-section">
-                    <h1>openskills agency</h1>
-                    <p class="subtitle">fetch, assemble and deploy the skills you need from the sources you trust</p>
-                    <p class="tagline">select from a list curated by humans, organizations and companies
-                    <br/>group the skills by category and give your agents and subagents only the skills needed for their current task
-                    
-                </p>
+                    <h2>openskills agency</h2>
+                    <p class="subtitle">fetch, assemble and deploy the skills you need from the Github sources you trust</p>
+                    <p class="tagline">select from a curated list of humans, organizations and companies
+                    <br/>group the skills by category or owner and download them as ZIP file
+                    <br/>then place them in your skill directories (~/.agents/skills) for the current task
+                    <br/>why not use find-skills <code>npx skills find XYZ</code> from skills.sh? 
+                    <br/>because many skills on GitHub cannot be found on skills.sh
+                    <br/>want me to include your GitHub repository? PRs welcome for this file <a href="https://github.com/openskillsagent/agency/blob/main/scraper/repos.json">here!</a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -41,7 +44,7 @@
                         </th>
                         <th data-column="creator">
                             <div class="th-content">
-                                <span class="th-label">Skill Creator</span>
+                                <span class="th-label">Creator</span>
                                 <span class="sort-indicator"></span>
                             </div>
                             <select class="filter-select" data-column="creator">
@@ -65,7 +68,7 @@
                         </th>
                         <th data-column="url">
                             <div class="th-content">
-                                <span class="th-label">URL</span>
+                                <span class="th-label">Name<br/>URL</span>
                                 <span class="sort-indicator"></span>
                             </div>
                         </th>
@@ -80,7 +83,19 @@
                         </th>
                         <th data-column="trust">
                             <div class="th-content">
-                                <span class="th-label">Trust (Github repo stars)</span>
+                                <span class="th-label">GitHub stars</span>
+                                <span class="sort-indicator"></span>
+                            </div>
+                        </th>
+                        <th data-column="cisco-ai-skill-scanner">
+                            <div class="th-content">
+                                <span class="th-label"><a href="https://github.com/cisco/ai-skill-scanner" target="_blank">Cisco<br/>Scanner</a></span>
+                                <span class="sort-indicator"></span>
+                            </div>
+                        </th>
+                        <th data-column="snyk-scanner" title="Four security checks: is_public_sink, destructive, untrusted_content, private_data (✓ = safe/0, ✗ = unsafe/not 0)">
+                            <div class="th-content">
+                                <span class="th-label"><a href="https://github.com/snyk/agent-scan" target="_blank">Snyk<br/>Scanner</a></span>
                                 <span class="sort-indicator"></span>
                             </div>
                         </th>
@@ -88,16 +103,94 @@
                 </thead>
                 <tbody id="skills-tbody">
                     <tr>
-                        <td colspan="6" class="loading">Loading skills data...</td>
+                        <td colspan="9" class="loading">Loading skills data...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </main>
 
+    <section class="documentation">
+        <div class="container">
+            <h2>🚀 Do this yourself with the repos you trust</h2>
+            <ol>
+                <li>Install Python 3.7+ and <a href="https://github.com/astral-sh/uv" target="_blank">UV</a></li>
+                <li>Create GitHub Personal Access Token (fine-grained)</li>
+                <li>Clone the repository
+                    <div class="code-block-wrapper">
+                        <button class="copy-btn" aria-label="Copy code">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+                                <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+                            </svg>
+                            Copy
+                        </button>
+                        <pre><code>git clone https://github.com/openskillsagent/agency.git</code></pre>
+                    </div>
+                </li>
+                <li>
+                    Create a <code>.env</code> file
+                    <div class="code-block-wrapper">
+                        <button class="copy-btn" aria-label="Copy code">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+                                <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+                            </svg>
+                            Copy
+                        </button>
+                        <pre><code>echo "GITHUB_TOKEN=your_github_token_here" > .env</code></pre>
+                    </div>
+                </li>
+                <li>
+                    Adjust <code>scraper/repos.json</code> file with the repositories you want to scrape (format: <code>"owner/repo"</code>)
+                </li>
+
+                <li>
+                    Run the scraper
+                    <div class="code-block-wrapper">
+                        <button class="copy-btn" aria-label="Copy code">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+                                <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+                            </svg>
+                            Copy
+                        </button>
+                        <pre><code>cd scraper
+pip install -r requirements.txt
+python scrape_skills.py</code></pre>
+                    </div>
+                </li>
+                <li>
+                    Serve the website
+                    <div class="code-block-wrapper">
+                        <button class="copy-btn" aria-label="Copy code">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+                                <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+                            </svg>
+                            Copy
+                        </button>
+                        <pre><code>cd ../public
+python -m http.server 8000</code></pre>
+                    </div>
+                </li>
+            </ol>
+            <p>This will</p>
+            <ol>
+                <li>Install Python dependencies</li>
+                <li>Fetch all SKILL.md files from configured repositories</li>
+                <li>Extract metadata (license, commit ID, summary)</li>
+                <li>Auto-generate 2-5 tags per skill</li>
+                <li>Fetch GitHub stars and run Cisco and Snyk scanners for trust metrics</li>
+                <li>Generate <code>public/skills-data.json</code></li>
+                <li>Serve the website locally on <a href="http://localhost:8000" target="_blank">http://localhost:8000</a></li>
+            </ol>
+        </div>
+    </section>
+
     <footer>
         <div class="container">
-            <p>&copy; 2026 OpenSkills Agency | Open Source Skills Marketplace | OpenSkills Agency is a free and open source project, licensed under the MIT License.</p>
+            <p>&copy; 2026 OpenSkills Agency is a free and open source project, licensed under the MIT License.</p>
             <div class="footer-links">
                 <a href="https://github.com/openskillsagent" target="_blank" rel="noopener noreferrer" class="github-link" title="Visit us on GitHub">
                     <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -110,6 +203,7 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="copy-code.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

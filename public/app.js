@@ -246,7 +246,7 @@ class SkillsTable {
         if (this.filteredSkills.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="empty-state">
+                    <td colspan="9" class="empty-state">
                         <p>No skills found</p>
                         <small>Try adjusting your filters</small>
                     </td>
@@ -255,7 +255,48 @@ class SkillsTable {
             return;
         }
         
-        tbody.innerHTML = this.filteredSkills.map((skill, index) => `
+        tbody.innerHTML = this.filteredSkills.map((skill, index) => {
+            // Extract is_safe value from nested security-scanners structure
+            let isSafe = 'N/A';
+            if (skill['security-scanners'] && skill['security-scanners']['cisco-ai-defense']) {
+                const ciscoDefense = skill['security-scanners']['cisco-ai-defense'];
+                
+                // Check if there's an error
+                if (ciscoDefense.error) {
+                    isSafe = `<span style="color: orange;" title="${this.escapeHtml(ciscoDefense.error)}">⚠</span> Error (${this.escapeHtml(ciscoDefense.error)})`;
+                } else if (ciscoDefense.hasOwnProperty('is_safe')) {
+                    isSafe = ciscoDefense.is_safe 
+                        ? '<span style="color: green;">✓</span> Safe' 
+                        : '<span style="color: red;">✗</span> Unsafe';
+                }
+            }
+            
+            // Extract Snyk scanner values and generate checkmarks/crosses
+            let snykResult = 'N/A';
+            if (skill['security-scanners'] && skill['security-scanners']['snyk']) {
+                const snyk = skill['security-scanners']['snyk'];
+                
+                // Check if there's an error
+                if (snyk.error) {
+                    snykResult = `<span style="color: orange;" title="${this.escapeHtml(snyk.error)}">⚠</span> Error (${this.escapeHtml(snyk.error)})`;
+                } else {
+                    const checks = [
+                        { key: 'is_public_sink', value: snyk.is_public_sink },
+                        { key: 'destructive', value: snyk.destructive },
+                        { key: 'untrusted_content', value: snyk.untrusted_content },
+                        { key: 'private_data', value: snyk.private_data }
+                    ];
+                    
+                    // Generate checkmarks (✓) or red crosses (✗) for each check
+                    const symbols = checks.map(check => 
+                        check.value === 0 ? '<span style="color: green;">✓</span>' : '<span style="color: red;">✗</span>'
+                    );
+                    
+                    snykResult = symbols.join(' ');
+                }
+            }
+            
+            return `
             <tr>
                 <td class="checkbox-column">
                     <input type="checkbox" 
@@ -277,8 +318,11 @@ class SkillsTable {
                 </td>
                 <td>${this.escapeHtml(skill.license)}</td>
                 <td><span class="trust-stars">${this.formatNumber(skill.trust)}</span></td>
+                <td>${isSafe}</td>
+                <td>${snykResult}</td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
         
         // Add event listeners to checkboxes
         document.querySelectorAll('.skill-checkbox').forEach(checkbox => {
@@ -315,7 +359,7 @@ class SkillsTable {
         const tbody = document.getElementById('skills-tbody');
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="empty-state">
+                <td colspan="9" class="empty-state">
                     <p style="color: #e74c3c;">⚠️ ${message}</p>
                 </td>
             </tr>

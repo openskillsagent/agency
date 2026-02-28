@@ -15,7 +15,12 @@
     --header-bg: #fff;
     --shadow: 0 2px 4px rgba(0,0,0,0.3);
     --grey-light: #666;
+    --grey-medium: #333;
     --grey-dark: #1a1a1a;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
@@ -46,14 +51,14 @@ header {
 }
 
 .logo {
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
     object-fit: contain;
 }
 
-.title-section h1 {
+.title-section h2 {
     font-size: 2rem;
-    color: #000;
+    color: #a78bfa;
     font-weight: 600;
     margin-bottom: 0.25rem;
 }
@@ -78,6 +83,7 @@ main {
 .stats-bar {
     background: var(--grey-dark);
     padding: 1rem;
+    margin-top: 10px;
     margin-bottom: 1.5rem;
     border-radius: 4px;
     box-shadow: var(--shadow);
@@ -96,25 +102,29 @@ main {
 }
 
 .download-btn {
-    background: var(--grey-light);
-    color: #000;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: 0.6rem 1.25rem;
+    border-radius: 6px;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
 .download-btn:hover:not(:disabled) {
-    background: #fff;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
+    transform: translateY(-1px);
 }
 
 .download-btn:disabled {
     background: #333;
     color: #666;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 /* Table Container */
@@ -134,7 +144,7 @@ table {
 }
 
 thead {
-    background: #000;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     color: white;
     position: sticky;
     top: 0;
@@ -146,7 +156,8 @@ th {
     padding: 0;
     text-align: left;
     font-weight: 600;
-    border-right: 1px solid rgba(255,255,255,0.1);
+    border-right: 1px solid rgba(255,255,255,0.2);
+    vertical-align: top;
 }
 
 th:last-child {
@@ -155,7 +166,7 @@ th:last-child {
 
 .th-content {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     padding: 0.75rem;
     cursor: pointer;
@@ -208,12 +219,13 @@ th:last-child {
 
 /* Table Body */
 tbody tr {
+    background-color: var(--hover-bg);
     border-bottom: 1px solid var(--border-color);
     transition: background-color 0.2s;
 }
 
 tbody tr:hover {
-    background-color: var(--hover-bg);
+    background-color: #000;
 }
 
 tbody tr:last-child {
@@ -302,13 +314,261 @@ td:nth-child(7) { /* Trust */
     content: '⭐ ';
 }
 
+/* Documentation Section */
+.documentation {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    padding: 4rem 0;
+    margin-top: 3rem;
+    border-top: 2px solid #333;
+    border-bottom: 2px solid #333;
+    position: relative;
+    overflow: hidden;
+}
+
+.documentation::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.documentation .container {
+    position: relative;
+    z-index: 1;
+}
+
+.documentation h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #fff;
+    text-align: center;
+    font-weight: 700;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.documentation ol {
+    list-style: none;
+    counter-reset: step-counter;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.documentation ol li {
+    counter-increment: step-counter;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    margin-bottom: 10px;
+}
+
+.documentation ol li:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(139, 92, 246, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
+}
+
+.documentation ol li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: -20px;
+    top: 1.5rem;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    border: 3px solid #1a1a1a;
+}
+
+.documentation ol li strong {
+    color: #a78bfa;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.documentation ol li code {
+    background: rgba(139, 92, 246, 0.15);
+    color: #c4b5fd;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.code-block-wrapper {
+    position: relative;
+    margin-top: 0.75rem;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+    z-index: 10;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.copy-btn:hover {
+    background: rgba(139, 92, 246, 0.4);
+    border-color: rgba(139, 92, 246, 0.6);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.copy-btn:active {
+    transform: translateY(0);
+}
+
+.copy-btn.copied {
+    background: rgba(139, 92, 246, 0.5);
+    border-color: rgba(139, 92, 246, 0.8);
+    color: #fff;
+}
+
+.copy-btn svg {
+    flex-shrink: 0;
+}
+
+.documentation pre {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1rem;
+    padding-right: 5rem;
+    overflow-x: auto;
+    position: relative;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.documentation pre code {
+    background: none;
+    border: none;
+    color: #c9d1d9;
+    padding: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: block;
+}
+
+.documentation pre:hover {
+    border-color: #8b5cf6;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(139, 92, 246, 0.2);
+}
+
+.documentation > .container > p {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #a78bfa;
+    margin: 3rem auto 1.5rem;
+    font-weight: 600;
+}
+
+.documentation > .container > ol:last-of-type {
+    margin-top: 1rem;
+}
+
+.documentation > .container > ol:last-of-type li {
+    background: rgba(99, 102, 241, 0.05);
+    border-color: rgba(99, 102, 241, 0.2);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.documentation > .container > ol:last-of-type li::before {
+    content: '✓';
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.documentation > .container > ol:last-of-type li:hover {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+a {
+    color: #818cf8;
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #a78bfa;
+}
+
+a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    transition: width 0.3s ease;
+}
+
+a:hover::after {
+    width: 100%;
+}
+
+/* Table header links - override default link styles */
+#skills-table thead a {
+    color: #fff !important;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+#skills-table thead a:hover {
+    color: var(--grey-light) !important;
+    text-decoration: underline;
+}
+
+#skills-table thead a::after {
+    display: none;
+}
+
 /* Footer */
 footer {
     background: #000;
     color: white;
     text-align: center;
     padding: 1.5rem 0;
-    margin-top: 3rem;
+    margin-top: 0;
     border-top: 1px solid var(--border-color);
 }
 
@@ -383,6 +643,40 @@ footer p {
         flex-direction: column;
         gap: 0.5rem;
         align-items: flex-start;
+    }
+    
+    /* Documentation responsive */
+    .documentation {
+        padding: 3rem 0;
+    }
+    
+    .documentation h2 {
+        font-size: 2rem;
+    }
+    
+    .documentation ol li {
+        padding: 1.5rem 1rem 1rem 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .documentation ol li::before {
+        left: -15px;
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    .documentation ol li strong {
+        font-size: 1rem;
+    }
+    
+    .documentation pre {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .documentation pre code {
+        font-size: 0.85rem;
     }
 }
 

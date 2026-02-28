@@ -7,12 +7,16 @@ Scrapes SKILL.md files from multiple GitHub repositories and generates a JSON da
 import os
 import re
 import json
+import tempfile
+import subprocess
 from pathlib import Path
 from typing import List, Dict, Optional
 from collections import Counter
 from dotenv import load_dotenv
-from github import Github, GithubException
+from github import Github, GithubException, Auth
 import time
+from skill_scanner import SkillScanner
+from skill_scanner.core.analyzers import BehavioralAnalyzer
 
 # Load environment variables
 load_dotenv(Path(__file__).parent.parent / '.env')
@@ -22,7 +26,8 @@ if not GITHUB_TOKEN:
     raise ValueError("GITHUB_TOKEN not found in .env file")
 
 # Initialize GitHub client
-g = Github(GITHUB_TOKEN)
+auth = Auth.Token(GITHUB_TOKEN)
+g = Github(auth=auth)
 
 # Load repository configurations from repos.json
 def load_repos() -> List[Dict]:
@@ -31,7 +36,15 @@ def load_repos() -> List[Dict]:
     with open(repos_file, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+# Load category keywords from categories.json
+def load_categories() -> Dict[str, List[str]]:
+    """Load category keywords from categories.json file."""
+    categories_file = Path(__file__).parent / 'categories.json'
+    with open(categories_file, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
 REPOS = load_repos()
+CATEGORY_KEYWORDS = load_categories()
 
 # Common license patterns
 LICENSE_PATTERNS = {
@@ -46,26 +59,6 @@ LICENSE_PATTERNS = {
     r'\bCC0\b': 'CC0-1.0',
     r'\bunlicense': 'Unlicense',
 }
-
-# Keywords for categorization
-CATEGORY_KEYWORDS = {
-    'automation': ['automate', 'automation', 'workflow', 'task', 'schedule'],
-    'development': ['develop', 'code', 'programming', 'build', 'compile'],
-    'testing': ['test', 'testing', 'qa', 'quality', 'validation', 'verify'],
-    'deployment': ['deploy', 'deployment', 'release', 'publish', 'production'],
-    'documentation': ['document', 'documentation', 'docs', 'readme', 'guide'],
-    'analysis': ['analyze', 'analysis', 'inspect', 'review', 'audit'],
-    'data-processing': ['data', 'process', 'transform', 'parse', 'extract'],
-    'web-development': ['web', 'html', 'css', 'javascript', 'frontend', 'backend'],
-    'security': ['security', 'secure', 'auth', 'authentication', 'encryption'],
-    'monitoring': ['monitor', 'monitoring', 'observe', 'track', 'alert'],
-    'ai': ['ai', 'artificial intelligence', 'machine learning', 'ml', 'llm', 'agent'],
-    'database': ['database', 'sql', 'query', 'db', 'postgres', 'mysql'],
-    'api': ['api', 'rest', 'graphql', 'endpoint', 'service'],
-    'git': ['git', 'github', 'version control', 'commit', 'branch'],
-    'cloud': ['cloud', 'aws', 'azure', 'gcp', 'kubernetes', 'docker'],
-}
-
 
 def extract_license_from_frontmatter(content: str) -> Optional[str]:
     """Extract license from YAML frontmatter."""
@@ -191,6 +184,47 @@ def categorize_skill(name: str, content: str, max_tags: int = 5) -> List[str]:
     return tags[:max_tags]
 
 
+def extract_snyk_labels(snyk_result: Dict) -> Dict:
+    """Extract only the 4 specific labels from Snyk scanner output."""
+    try:
+        # Navigate through the Snyk result structure to find labels
+        # Structure: {"<path>": {"servers": [{"name": "...", ...}], "labels": [[{labels_dict}]]}}
+        for path_key, path_data in snyk_result.items():
+            if isinstance(path_data, dict) and 'labels' in path_data:
+                labels_list = path_data['labels']
+                if labels_list and isinstance(labels_list, list) and len(labels_list) > 0:
+                    # labels is a list of lists, get the first inner list
+                    inner_labels = labels_list[0]
+                    if inner_labels and isinstance(inner_labels, list) and len(inner_labels) > 0:
+                        # Get the first label dict
+                        labels_dict = inner_labels[0]
+                        if isinstance(labels_dict, dict):
+                            # Extract only the 4 required labels
+                            return {
+                                'is_public_sink': labels_dict.get('is_public_sink', 0),
+                                'destructive': labels_dict.get('destructive', 0),
+                                'untrusted_content': labels_dict.get('untrusted_content', 0),
+                                'private_data': labels_dict.get('private_data', 0)
+                            }
+        
+        # If we couldn't find labels in the expected structure, return defaults
+        return {
+            'is_public_sink': 0,
+            'destructive': 0,
+            'untrusted_content': 0,
+            'private_data': 0,
+            'note': 'Labels not found in expected structure'
+        }
+    except Exception as e:
+        return {
+            'error': f'Failed to extract labels: {str(e)}',
+            'is_public_sink': 0,
+            'destructive': 0,
+            'untrusted_content': 0,
+            'private_data': 0
+        }
+
+
 def find_skill_files(repo, base_path: str, is_wildcard: bool = False) -> List[Dict]:
     """Find all SKILL.md files in a repository path."""
     skills = []
@@ -249,6 +283,12 @@ def scrape_repository(repo_config: Dict) -> List[Dict]:
     owner = repo_config['owner']
     repo_name = repo_config['repo']
     path = repo_config['path']
+    enabled = repo_config.get('enabled', True)  # Default to True if not specified
+    
+    # Skip if disabled
+    if not enabled:
+        print(f"\n⏭️  Skipping {owner}/{repo_name} (disabled)")
+        return []
     
     print(f"\n📦 Processing {owner}/{repo_name}")
     
@@ -290,6 +330,150 @@ def scrape_repository(repo_config: Dict) -> List[Dict]:
                 summary = generate_summary(content)
                 tags = categorize_skill(skill_name, content)
                 
+                # Run security scanner on the skill
+                scan_data = None
+                snyk_data = None
+                
+                # Create temporary directory for both scanners
+                try:
+                    with tempfile.TemporaryDirectory() as temp_dir:
+                        skill_path = Path(temp_dir) / skill_name
+                        skill_path.mkdir()
+                        
+                        # Save SKILL.md to temp directory
+                        skill_md_path = skill_path / "SKILL.md"
+                        skill_md_path.write_text(content, encoding='utf-8')
+                        
+                        # Download other files from the skill directory if they exist
+                        try:
+                            dir_contents = repo.get_contents(skill_dir_path)
+                            for file in dir_contents:
+                                if file.type == "file" and file.name.upper() != "SKILL.MD":
+                                    file_path = skill_path / file.name
+                                    file_content = file.decoded_content
+                                    file_path.write_bytes(file_content)
+                        except Exception:
+                            pass  # Continue with just SKILL.md if other files fail
+                        
+                        # Run Cisco scanner
+                        try:
+                            # Create scanner with behavioral analyzer
+                            scanner = SkillScanner(analyzers=[BehavioralAnalyzer()])
+                            
+                            # Run security scanner on the skill directory
+                            scan_result = scanner.scan_skill(str(skill_path))
+                            
+                            # Convert scan result to serializable format
+                            scan_data = {
+                                'findings_count': len(scan_result.findings),
+                                'max_severity': str(scan_result.max_severity),
+                                'is_safe': scan_result.is_safe,
+                                'findings': [
+                                    {
+                                        'severity': str(finding.severity),
+                                        'category': finding.category,
+                                        'title': finding.title,
+                                        'description': finding.description,
+                                        'file': finding.file_path,
+                                        'line': finding.line_number
+                                    }
+                                    for finding in scan_result.findings
+                                ]
+                            }
+                        except Exception as e:
+                            print(f"      ⚠️  Cisco scanner warning: {e}")
+                            scan_data = {
+                                'error': str(e),
+                                'findings_count': 0,
+                                'max_severity': 'UNKNOWN',
+                                'is_safe': None
+                            }
+                        
+                        # Run Snyk scanner independently (even if Cisco scanner failed)
+                        try:
+                            # Run uvx snyk-agent-scan command
+                            cmd = ['uvx', 'snyk-agent-scan@latest', '--json', '--skills', str(skill_md_path)]
+                            result = subprocess.run(
+                                cmd,
+                                capture_output=True,
+                                text=True,
+                                timeout=30
+                            )
+                            
+                            # Parse JSON output
+                            if result.stdout:
+                                # The output has progress indicators on stderr, but stdout should be pure JSON
+                                # Split by lines and find lines that look like JSON objects
+                                lines = result.stdout.strip().split('\n')
+                                
+                                # Try to find the JSON object (starts with { and ends with })
+                                json_lines = []
+                                in_json = False
+                                brace_count = 0
+                                
+                                for line in lines:
+                                    # Skip progress indicator lines (contain special chars)
+                                    if '⠋' in line or '⠙' in line or '⠹' in line or '⠸' in line or '⠼' in line or '⠴' in line or '⠦' in line or '⠧' in line or '⠇' in line or '⠏' in line:
+                                        continue
+                                    
+                                    for char in line:
+                                        if char == '{':
+                                            if not in_json:
+                                                in_json = True
+                                                json_lines = []
+                                            brace_count += 1
+                                        elif char == '}':
+                                            brace_count -= 1
+                                    
+                                    if in_json:
+                                        json_lines.append(line)
+                                    
+                                    if in_json and brace_count == 0:
+                                        break
+                                
+                                if json_lines:
+                                    json_output = '\n'.join(json_lines)
+                                    try:
+                                        snyk_result = json.loads(json_output)
+                                        # Extract only the 4 specific labels from Snyk output
+                                        snyk_data = extract_snyk_labels(snyk_result)
+                                    except json.JSONDecodeError:
+                                        # If still fails, try to extract just the last complete JSON object
+                                        json_start = result.stdout.find('{')
+                                        json_end = result.stdout.rfind('}')
+                                        if json_start != -1 and json_end != -1:
+                                            json_output = result.stdout[json_start:json_end+1]
+                                            # Remove any non-JSON lines
+                                            json_output = '\n'.join([l for l in json_output.split('\n') if not any(c in l for c in ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'])])
+                                            snyk_result = json.loads(json_output)
+                                            snyk_data = extract_snyk_labels(snyk_result)
+                                        else:
+                                            raise
+                                else:
+                                    snyk_data = {'error': 'No valid JSON found in Snyk output'}
+                            else:
+                                snyk_data = {'error': 'No output from Snyk scanner'}
+                                
+                        except subprocess.TimeoutExpired:
+                            snyk_data = {'error': 'Snyk scanner timeout'}
+                        except json.JSONDecodeError as e:
+                            snyk_data = {'error': f'Failed to parse Snyk output: {str(e)}', 'raw_output': result.stdout[:500] if 'result' in locals() else 'N/A'}
+                        except Exception as e:
+                            snyk_data = {'error': f'Snyk scanner error: {str(e)}'}
+                
+                except Exception as e:
+                    print(f"      ⚠️  Temp directory error: {e}")
+                    # If temp directory creation fails, set errors for both scanners
+                    if scan_data is None:
+                        scan_data = {
+                            'error': f'Temp directory error: {str(e)}',
+                            'findings_count': 0,
+                            'max_severity': 'UNKNOWN',
+                            'is_safe': None
+                        }
+                    if snyk_data is None:
+                        snyk_data = {'error': f'Temp directory error: {str(e)}'}
+                
                 # Build skill data
                 skill_data = {
                     'name': skill_name,
@@ -300,7 +484,11 @@ def scrape_repository(repo_config: Dict) -> List[Dict]:
                     'license': license_info,
                     'trust': stars,
                     'version': latest_commit,
-                    'repo': f"{owner}/{repo_name}"
+                    'repo': f"{owner}/{repo_name}",
+                    'security-scanners': {
+                        'cisco-ai-defense': scan_data,
+                        'snyk': snyk_data
+                    }
                 }
                 
                 skills_data.append(skill_data)
