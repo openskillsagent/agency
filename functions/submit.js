@@ -45,60 +45,95 @@ Repository: ${sanitizedRepo}
 Path: ${sanitizedPath}
 Submitted: ${new Date().toISOString()}`;
 
-  // Step 1: Get the SHA of the base branch (main)
-  const refRes = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/git/ref/heads/main`,
-    { headers: githubHeaders(GITHUB_TOKEN) }
-  );
-  const { object: { sha: baseSha } } = await refRes.json();
+  // Check if GITHUB_TOKEN is available
+  if (!GITHUB_TOKEN) {
+    console.error("GITHUB_TOKEN not configured");
+    return new Response("Server configuration error", { status: 500 });
+  }
 
-  // Step 2: Create a new branch
-  const branchName = `submission-${Date.now()}`;
-  await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/git/refs`, {
-    method: "POST",
-    headers: githubHeaders(GITHUB_TOKEN),
-    body: JSON.stringify({
-      ref: `refs/heads/${branchName}`,
-      sha: baseSha,
-    }),
-  });
-
-  // Step 3: Create or update a file on that branch
-  await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/submissions/repo_addition_${Date.now()}.md`,
-    {
-      method: "PUT",
-      headers: githubHeaders(GITHUB_TOKEN),
-      body: JSON.stringify({
-        message: "New submission",
-        content: btoa(content), // base64 encode
-        branch: branchName,
-      }),
+  try {
+    // Step 1: Get the SHA of the base branch (main)
+    const refRes = await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/git/ref/heads/main`,
+      { headers: githubHeaders(GITHUB_TOKEN) }
+    );
+    
+    if (!refRes.ok) {
+      const error = await refRes.text();
+      console.error("Failed to get main branch ref:", error);
+      return new Response("Failed to access repository", { status: 500 });
     }
-  );
+    
+    const refData = await refRes.json();
+    const baseSha = refData.object.sha;
 
-  // Step 4: Open the pull request
-  const prRes = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/pulls`,
-    {
+    // Step 2: Create a new branch
+    const branchName = `submission-${Date.now()}`;
+    const branchRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/git/refs`, {
       method: "POST",
       headers: githubHeaders(GITHUB_TOKEN),
       body: JSON.stringify({
-        title: "New form submission",
-        head: branchName,
-        base: "main",
-        body: "Submitted via the site.",
+        ref: `refs/heads/${branchName}`,
+        sha: baseSha,
       }),
+    });
+    
+    if (!branchRes.ok) {
+      const error = await branchRes.text();
+      console.error("Failed to create branch:", error);
+      return new Response("Failed to create submission branch", { status: 500 });
     }
-  );
 
-  const pr = await prRes.json();
+    // Step 3: Create a file on that branch
+    const fileName = `repo_addition_${Date.now()}.md`;
+    const fileRes = await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/scraper/submissions/${fileName}`,
+      {
+        method: "PUT",
+        headers: githubHeaders(GITHUB_TOKEN),
+        body: JSON.stringify({
+          message: `New submission: ${sanitizedUser}/${sanitizedRepo}`,
+          content: btoa(content), // base64 encode
+          branch: branchName,
+        }),
+      }
+    );
+    
+    if (!fileRes.ok) {
+      const error = await fileRes.text();
+      console.error("Failed to create file:", error);
+      return new Response("Failed to create submission file", { status: 500 });
+    }
 
-  if (!prRes.ok) {
-    return new Response("Failed to create PR", { status: 500 });
+    // Step 4: Open the pull request
+    const prRes = await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/pulls`,
+      {
+        method: "POST",
+        headers: githubHeaders(GITHUB_TOKEN),
+        body: JSON.stringify({
+          title: `Submission: ${sanitizedUser}/${sanitizedRepo}`,
+          head: branchName,
+          base: "main",
+          body: `New repository submission\n\n**GitHub User:** ${sanitizedUser}\n**Repository:** ${sanitizedRepo}\n**Path:** ${sanitizedPath || '(root)'}\n\nSubmitted via the website form.`,
+        }),
+      }
+    );
+
+    if (!prRes.ok) {
+      const error = await prRes.text();
+      console.error("Failed to create PR:", error);
+      return new Response("Failed to create pull request", { status: 500 });
+    }
+
+    const pr = await prRes.json();
+    console.log("PR created successfully:", pr.html_url);
+
+    return Response.redirect("/thank-you.html", 303);
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return new Response("An unexpected error occurred", { status: 500 });
   }
-
-  return Response.redirect("/thank-you.html", 303);
 }
 
 function githubHeaders(token) {
