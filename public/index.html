@@ -20,6 +20,7 @@
                     <br/>why not use find-skills <code>npx skills find XYZ</code> from skills.sh? 
                     <br/>because many skills on GitHub cannot be found on skills.sh
                     <br/>want me to include your GitHub repository? PRs welcome for this file <a href="https://github.com/openskillsagent/agency/blob/main/scraper/repos.json">here!</a>
+                    <br/>or use the <a href="#submission-form">submission form below</a> to submit your repository for inclusion in the next update cycle
                     </p>
                 </div>
             </div>
@@ -185,6 +186,30 @@ python -m http.server 8000</code></pre>
                 <li>Generate <code>public/skills-data.json</code></li>
                 <li>Serve the website locally on <a href="http://localhost:8000" target="_blank">http://localhost:8000</a></li>
             </ol>
+        </div>
+    </section>
+
+    <section id="submission-form" class="submission-section">
+        <div class="container">
+            <h2>📝 Submit Your Repository</h2>
+            <p class="submission-intro">Have a repository with skills you'd like to share? Submit it here for inclusion in our next update cycle.</p>
+            <form action="/submit" method="POST" class="submission-form">
+                <input type="text" name="website" class="honeypot" tabindex="-1" autocomplete="off">
+                
+                <div class="form-group">
+                    <label for="user">GitHub Username</label>
+                    <input id="user" name="user" type="text" required placeholder="e.g., openskillsagent">
+                </div>
+                <div class="form-group">
+                    <label for="repo">GitHub Repository</label>
+                    <input id="repo" name="repo" type="text" required placeholder="e.g., agency">
+                </div>
+                <div class="form-group">
+                    <label for="path">Path to Skills in Repository</label>
+                    <input id="path" name="path" type="text" required placeholder="e.g., skills/ or leave empty for root">
+                </div>
+                <button type="submit" class="submit-btn">Submit Repository</button>
+            </form>
         </div>
     </section>
 
