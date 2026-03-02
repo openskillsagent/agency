@@ -22,11 +22,12 @@
     <main class="container">
         <section class="thank-you-section">
             <div class="thank-you-content">
-                <div class="success-icon">✨</div>
-                <h1>Thank You!</h1>
-                <p class="thank-you-message">
+                <div class="success-icon" id="statusIcon">✨</div>
+                <h1 id="statusTitle">Thank You!</h1>
+                <p class="thank-you-message" id="statusMessage">
                     Your repository submission has been received successfully!
                 </p>
+                <div class="error-details" id="errorDetails" style="display: none;"></div>
                 <div class="next-steps">
                     <h2>What Happens Next?</h2>
                     <ol>
@@ -81,5 +82,56 @@
             </div>
         </div>
     </footer>
+    
+    <script>
+        // Check for error parameter in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        
+        if (error) {
+            // Update icon, title, and message for error state
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            const errorDetails = document.getElementById('errorDetails');
+            
+            statusIcon.textContent = '⚠️';
+            statusIcon.classList.add('error-icon');
+            statusTitle.textContent = 'Submission Received with Issues';
+            
+            // Error messages based on error type
+            const errorMessages = {
+                'config': {
+                    message: 'Your submission was received, but there was a configuration issue on our end.',
+                    details: 'Our team has been notified and will process your submission manually. We apologize for the inconvenience.'
+                },
+                'repository': {
+                    message: 'Your submission was received, but we encountered an issue accessing our repository.',
+                    details: 'Our team has been notified and will process your submission manually.'
+                },
+                'branch': {
+                    message: 'Your submission was received, but we couldn\'t create a submission branch.',
+                    details: 'Our team has been notified and will process your submission manually.'
+                },
+                'file': {
+                    message: 'Your submission was received, but we couldn\'t save the submission file.',
+                    details: 'Our team has been notified and will process your submission manually.'
+                },
+                'pr': {
+                    message: 'Your submission was received, but we couldn\'t create a pull request automatically.',
+                    details: 'Our team has been notified and will create the pull request manually. This may take a bit longer than usual.'
+                },
+                'unexpected': {
+                    message: 'Your submission was received, but an unexpected error occurred.',
+                    details: 'Our team has been notified and will process your submission manually.'
+                }
+            };
+            
+            const errorInfo = errorMessages[error] || errorMessages['unexpected'];
+            statusMessage.textContent = errorInfo.message;
+            errorDetails.innerHTML = `<p>${errorInfo.details}</p>`;
+            errorDetails.style.display = 'block';
+        }
+    </script>
 </body>
 </html>

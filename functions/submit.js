@@ -48,7 +48,7 @@ Submitted: ${new Date().toISOString()}`;
   // Check if GITHUB_TOKEN is available
   if (!GITHUB_TOKEN) {
     console.error("GITHUB_TOKEN not configured");
-    return new Response("Server configuration error", { status: 500 });
+    return Response.redirect("/thank-you.html?error=config", 303);
   }
 
   try {
@@ -61,7 +61,7 @@ Submitted: ${new Date().toISOString()}`;
     if (!refRes.ok) {
       const error = await refRes.text();
       console.error("Failed to get main branch ref:", error);
-      return new Response("Failed to access repository", { status: 500 });
+      return Response.redirect("/thank-you.html?error=repository", 303);
     }
     
     const refData = await refRes.json();
@@ -81,7 +81,7 @@ Submitted: ${new Date().toISOString()}`;
     if (!branchRes.ok) {
       const error = await branchRes.text();
       console.error("Failed to create branch:", error);
-      return new Response("Failed to create submission branch", { status: 500 });
+      return Response.redirect("/thank-you.html?error=branch", 303);
     }
 
     // Step 3: Create a file on that branch
@@ -102,7 +102,7 @@ Submitted: ${new Date().toISOString()}`;
     if (!fileRes.ok) {
       const error = await fileRes.text();
       console.error("Failed to create file:", error);
-      return new Response("Failed to create submission file", { status: 500 });
+      return Response.redirect("/thank-you.html?error=file", 303);
     }
 
     // Step 4: Open the pull request
@@ -123,7 +123,7 @@ Submitted: ${new Date().toISOString()}`;
     if (!prRes.ok) {
       const error = await prRes.text();
       console.error("Failed to create PR:", error);
-      return new Response("Failed to create pull request", { status: 500 });
+      return Response.redirect("/thank-you.html?error=pr", 303);
     }
 
     const pr = await prRes.json();
@@ -132,7 +132,7 @@ Submitted: ${new Date().toISOString()}`;
     return Response.redirect("/thank-you.html", 303);
   } catch (error) {
     console.error("Unexpected error:", error);
-    return new Response("An unexpected error occurred", { status: 500 });
+    return Response.redirect("/thank-you.html?error=unexpected", 303);
   }
 }
 
