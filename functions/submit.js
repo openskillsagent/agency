@@ -52,82 +52,28 @@ Submitted: ${new Date().toISOString()}`;
   }
 
   try {
-    // Step 1: Get the SHA of the base branch (main)
-    const refRes = await fetch(
-      `https://api.github.com/repos/${OWNER}/${REPO}/git/ref/heads/main`,
-      { headers: githubHeaders(GITHUB_TOKEN) }
-    );
-    
-    if (!refRes.ok) {
-      const error = await refRes.text();
-      console.error("Failed to get main branch ref:", error);
-      return Response.redirect("/thank-you.html?error=repository", 303);
-    }
-    
-    const refData = await refRes.json();
-    const baseSha = refData.object.sha;
-
-    // Step 2: Create a new branch
-    const branchName = `submission-${Date.now()}`;
-    const branchRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/git/refs`, {
-      method: "POST",
-      headers: githubHeaders(GITHUB_TOKEN),
-      body: JSON.stringify({
-        ref: `refs/heads/${branchName}`,
-        sha: baseSha,
-      }),
-    });
-    
-    if (!branchRes.ok) {
-      const error = await branchRes.text();
-      console.error("Failed to create branch:", error);
-      return Response.redirect("/thank-you.html?error=branch", 303);
-    }
-
-    // Step 3: Create a file on that branch
-    const fileName = `repo_addition_${Date.now()}.md`;
+    // Create a file directly in the submissions directory on main branch
+    const fileName = `submission_${sanitizedUser}_${sanitizedRepo}_${Date.now()}.md`;
     const fileRes = await fetch(
-      `https://api.github.com/repos/${OWNER}/${REPO}/contents/scraper/submissions/${fileName}`,
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/submissions/${fileName}`,
       {
         method: "PUT",
         headers: githubHeaders(GITHUB_TOKEN),
         body: JSON.stringify({
-          message: `New submission: ${sanitizedUser}/${sanitizedRepo}`,
+          message: `Add submission: ${sanitizedUser}/${sanitizedRepo}`,
           content: btoa(content), // base64 encode
-          branch: branchName,
         }),
       }
     );
     
     if (!fileRes.ok) {
       const error = await fileRes.text();
-      console.error("Failed to create file:", error);
+      console.error("Failed to create submission file:", error);
       return Response.redirect("/thank-you.html?error=file", 303);
     }
 
-    // Step 4: Open the pull request
-    const prRes = await fetch(
-      `https://api.github.com/repos/${OWNER}/${REPO}/pulls`,
-      {
-        method: "POST",
-        headers: githubHeaders(GITHUB_TOKEN),
-        body: JSON.stringify({
-          title: `Submission: ${sanitizedUser}/${sanitizedRepo}`,
-          head: branchName,
-          base: "main",
-          body: `New repository submission\n\n**GitHub User:** ${sanitizedUser}\n**Repository:** ${sanitizedRepo}\n**Path:** ${sanitizedPath || '(root)'}\n\nSubmitted via the website form.`,
-        }),
-      }
-    );
-
-    if (!prRes.ok) {
-      const error = await prRes.text();
-      console.error("Failed to create PR:", error);
-      return Response.redirect("/thank-you.html?error=pr", 303);
-    }
-
-    const pr = await prRes.json();
-    console.log("PR created successfully:", pr.html_url);
+    const fileData = await fileRes.json();
+    console.log("Submission file created successfully:", fileData.content.html_url);
 
     return Response.redirect("/thank-you.html", 303);
   } catch (error) {
