@@ -52,7 +52,7 @@ Submitted: ${new Date().toISOString()}`;
   // Check if GITHUB_TOKEN is available
   if (!GITHUB_TOKEN) {
     console.error("GITHUB_TOKEN not configured");
-    return Response.redirect(`${origin}/thank-you.html?error=config`, 303);
+    return Response.redirect(`${origin}/thank_you.html?error=config`, 303);
   }
 
   try {
@@ -73,16 +73,16 @@ Submitted: ${new Date().toISOString()}`;
     if (!fileRes.ok) {
       const error = await fileRes.text();
       console.error("Failed to create submission file:", error);
-      return Response.redirect(`${origin}/thank-you.html?error=file`, 303);
+      return Response.redirect(`${origin}/thank_you.html?error=file`, 303);
     }
 
     const fileData = await fileRes.json();
     console.log("Submission file created successfully:", fileData.content.html_url);
 
-    return Response.redirect(`${origin}/thank-you.html`, 303);
+    return Response.redirect(`${origin}/thank_you.html`, 303);
   } catch (error) {
     console.error("Unexpected error:", error);
-    return Response.redirect(`${origin}/thank-you.html?error=unexpected`, 303);
+    return Response.redirect(`${origin}/thank_you.html?error=unexpected`, 303);
   }
 }
 
