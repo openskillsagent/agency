@@ -34,7 +34,7 @@ header{background:var(--header-bg);border-bottom:2px solid var(--primary);paddin
 .download-btn,.submit-btn{background:var(--gradient);color:#fff;border:none;padding:.6rem 1.25rem;border-radius:6px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s;box-shadow:0 2px 8px rgba(99,102,241,.3)}
 .download-btn:hover:not(:disabled),.submit-btn:hover{background:var(--gradient-hover);box-shadow:0 4px 12px rgba(99,102,241,.5);transform:translateY(-1px)}
 .download-btn:disabled{background:#333;color:var(--grey-light);cursor:not-allowed;box-shadow:none}
-.submit-btn{width:100%;padding:.9rem 1.5rem;border-radius:8px;font-size:1rem;box-shadow:0 4px 12px rgba(99,102,241,.4);margin-top:.5rem}
+.submit-btn{width:100%;padding:.7rem 1.25rem;border-radius:6px;font-size:.95rem;box-shadow:0 4px 12px rgba(99,102,241,.4);margin-top:.25rem}
 .submit-btn:hover{box-shadow:0 6px 16px rgba(99,102,241,.6);transform:translateY(-2px)}
 .submit-btn:active{transform:translateY(0)}
 
@@ -110,16 +110,17 @@ a:hover::after{width:100%}
 #skills-table thead a::after{display:none}
 
 /* Submission Section */
-.submission-section .container{max-width:700px}
-.submission-section h2{margin-bottom:1rem}
-.submission-intro{text-align:center;font-size:1.1rem;color:var(--purple);margin-bottom:2.5rem;line-height:1.6}
-.submission-form{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:2rem;backdrop-filter:blur(10px);transition:all .3s}
+.submission-section .container{max-width:900px}
+.submission-section h2{margin-bottom:.75rem;font-size:2rem}
+.submission-intro{text-align:center;font-size:1rem;color:var(--purple);margin-bottom:1.5rem;line-height:1.5}
+.submission-form{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:1.5rem;backdrop-filter:blur(10px);transition:all .3s}
 .submission-form:hover{background:rgba(255,255,255,.05);border-color:rgba(139,92,246,.4);box-shadow:0 8px 24px rgba(139,92,246,.15)}
-.form-group{margin-bottom:1.5rem}
-.form-group label{display:block;color:var(--purple);font-weight:600;margin-bottom:.5rem;font-size:.95rem}
-.form-group input{width:100%;padding:.75rem 1rem;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#c9d1d9;font-size:1rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;transition:all .3s;box-shadow:inset 0 2px 4px rgba(0,0,0,.3)}
+.form-row{display:flex;gap:1rem;margin-bottom:1rem}
+.form-group{margin-bottom:1rem;flex:1}
+.form-group label{display:block;color:var(--purple);font-weight:600;margin-bottom:.35rem;font-size:.85rem}
+.form-group input{width:100%;padding:.5rem .75rem;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#c9d1d9;font-size:.9rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;transition:all .3s;box-shadow:inset 0 2px 4px rgba(0,0,0,.3)}
 .form-group input:focus{outline:none;border-color:#8b5cf6;box-shadow:inset 0 2px 4px rgba(0,0,0,.3),0 0 0 3px rgba(139,92,246,.2)}
-.form-group input::placeholder{color:var(--grey-light)}
+.form-group input::placeholder{color:var(--grey-light);font-size:.85rem}
 .honeypot{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
 
 /* Thank You Page */
@@ -177,6 +178,7 @@ footer p{font-size:.9rem}
     .documentation ol li strong{font-size:1rem}
     .documentation pre{padding:.75rem;font-size:.85rem}
     .documentation pre code{font-size:.85rem}
+    .form-row{flex-direction:column;gap:0}
 }
 
 /* Animations & States */
