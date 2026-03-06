@@ -88,7 +88,7 @@ createApp({
             return [...new Set(this.skills.map(s => s.license))].sort();
         },
         statsText() {
-            return `Skills by ${this.uniqueCreators.length} creators, with ${this.uniqueCategories.length} different categories and ${this.uniqueLicenses.length} licenses.`;
+            return `${this.skills.length} skills by ${this.uniqueCreators.length} creators, with ${this.uniqueCategories.length} different categories and ${this.uniqueLicenses.length} licenses.`;
         },
         filteredCount() {
             const total = this.skills.length;
