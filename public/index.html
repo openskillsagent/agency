@@ -16,15 +16,14 @@
                 <div class="flex items-center gap-6">
                     <img src="assets/doghub.png" alt="OpenSkills Agency Logo" class="w-48 h-48 object-contain">
                     <div>
-                        <h2 class="text-3xl font-semibold text-purple-400 mb-1">openskills agency</h2>
-                        <p class="text-lg text-gray-800 font-medium">fetch, assemble and deploy the skills you need from the Github sources you trust</p>
+                        <h1 class="text-3xl font-semibold text-purple-400 mb-1">openskills agency</h1>
+                        <p class="text-lg text-gray-800 font-medium">fetch, assemble and deploy the skills you need from the Github sources you trust.</p>
                         <p class="text-sm text-gray-600 mt-1">
-                            select from a curated list of humans, organizations and companies
-                            <br/>group the skills by category or owner and download and unzip them to your skill directories (~/.agents/skills)
-                            <br/>why not just use the "find-skills" skill from <a href="https://skills.sh/" target="_blank" class="text-indigo-400 hover:text-purple-500 font-semibold transition-colors">skills.sh</a> or use <a href="https://skillsmp.com/" target="_blank" class="text-indigo-400 hover:text-purple-500 font-semibold transition-colors">skillsmp.com</a>? 
-                            <br/>because many skills on GitHub cannot be found on skills.sh and you want quality instead of quantity.
-                            <br/>Have a repository with your own skills you'd like to share? 
-                            <br/>Submit it here for inclusion in our next update cycle.
+                            Select from a curated list of humans, organizations and companies.
+                            <br/>Group the skills by category or owner and download and unzip them to your skill directories (~/.agents/skills)
+                            <br/>Why not just use the "find-skills" skill from <a href="https://skills.sh/" target="_blank" class="text-indigo-400 hover:text-purple-500 font-semibold transition-colors">skills.sh</a> or use <a href="https://skillsmp.com/" target="_blank" class="text-indigo-400 hover:text-purple-500 font-semibold transition-colors">skillsmp.com</a>? 
+                            <br/>Because many skills on GitHub cannot be found on skills.sh and you want quality instead of quantity.
+                            <br/>Have a repository with your own skills you'd like to share? Submit it here for inclusion in our next update cycle.
                         </p>
                     </div>
                 </div>
@@ -178,7 +177,7 @@
                             </th>
                             <th class="p-0 text-left border-r border-white border-opacity-20">
                                 <div @click="sortBy('cisco-ai-skill-scanner')" class="px-3 py-3 cursor-pointer select-none hover:bg-white hover:bg-opacity-10 flex items-start justify-between">
-                                    <a href="https://github.com/cisco/ai-skill-scanner" target="_blank" class="font-semibold text-white hover:text-gray-300">Cisco<br/>Scanner</a>
+                                    <a href="https://github.com/cisco-ai-defense/skill-scanner" target="_blank" class="font-semibold text-white hover:text-gray-300">Cisco<br/>Scanner</a>
                                     <span class="ml-2 text-xs opacity-50" :class="{ 'opacity-100': currentSort.column === 'cisco-ai-skill-scanner' }">
                                         {{ getSortIcon('cisco-ai-skill-scanner') }}
                                     </span>
